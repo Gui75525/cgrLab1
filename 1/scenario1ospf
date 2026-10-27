@@ -1,0 +1,569 @@
+root@netauto:~# cat scenario1-all.txt 
+===== Access1.txt =====
+### Access1  20261027-2145
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.13
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+# Trunk LACP para Distribution1 (swp1 + swp2)
+auto bond1
+iface bond1
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    bridge-vids 2 3
+
+# Trunk LACP para Distribution2 (swp3 + swp4)
+auto bond2
+iface bond2
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    bridge-vids 2 3
+
+# Porta do utilizador em VLAN 2
+auto swp5
+iface swp5
+    bridge-access 2
+
+# Porta do utilizador em VLAN 3
+auto swp6
+iface swp6
+    bridge-access 3
+
+# Bridge Linux unificando tudo
+auto bridge
+iface bridge
+    bridge-vlan-aware yes
+    bridge-ports bond1 bond2 swp5 swp6
+    bridge-vids 2 3
+    bridge-stp on
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname Access1
+log syslog informational
+service integrated-vtysh-config
+!
+end
+
+===== Access2.txt =====
+### Access2  20261027-2145
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.11
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+# Trunk LACP para Distribution2 (swp1 + swp2)
+auto bond1
+iface bond1
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    bridge-vids 2 3
+
+# Trunk LACP para Distribution1 (swp3 + swp4)
+auto bond2
+iface bond2
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    bridge-vids 2 3
+
+# Porta do utilizador em VLAN 2
+auto swp5
+iface swp5
+    bridge-access 2
+
+# Porta do utilizador em VLAN 3
+auto swp6
+iface swp6
+    bridge-access 3
+
+# Bridge Linux
+auto bridge
+iface bridge
+    bridge-vlan-aware yes
+    bridge-ports bond1 bond2 swp5 swp6
+    bridge-vids 2 3
+    bridge-stp on
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname Access2
+log syslog informational
+service integrated-vtysh-config
+!
+end
+
+===== BorderRouter.txt =====
+### BorderRouter  20261027-2145
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.9
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+# Bond to SpineRouter1 (swp1 + swp2)
+auto bond-spine1
+iface bond-spine1 inet static
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    address 10.8.101.2/30
+
+# Bond to SpineRouter2 (swp3 + swp4)
+auto bond-spine2
+iface bond-spine2 inet static
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    address 10.8.101.6/30
+
+# Link to UbuntuInternet
+auto swp5
+iface swp5 inet static
+    address 203.0.113.1/24
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname BorderRouter
+log syslog informational
+service integrated-vtysh-config
+!
+router ospf
+ ospf router-id 10.8.255.20
+ network 10.8.101.0/30 area 0
+ network 10.8.101.4/30 area 0
+ default-information originate always
+exit
+!
+end
+
+===== DatacenterRack.txt =====
+### DatacenterRack  20261027-2145
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.12
+    netmask 255.255.255.0
+
+# Bond to SpineRouter1 (swp5 + swp6)
+auto bond-spine1
+iface bond-spine1 inet static
+    bond-slaves swp5 swp6
+    bond-mode 802.3ad
+    address 10.8.102.1/30
+
+# Bond to SpineRouter2 (swp10 + swp11)
+auto bond-spine2
+iface bond-spine2 inet static
+    bond-slaves swp10 swp11
+    bond-mode 802.3ad
+    address 10.8.102.5/30
+
+# Server port (routed), gateway for Ubuntu-Server-5
+auto swp1
+iface swp1 inet static
+    address 10.8.200.1/24
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname DatacenterRack
+log syslog informational
+service integrated-vtysh-config
+!
+interface swp1
+ ip ospf passive
+exit
+!
+router ospf
+ ospf router-id 10.8.102.1
+ network 10.8.102.0/30 area 0
+ network 10.8.102.4/30 area 0
+ network 10.8.200.0/24 area 0
+exit
+!
+end
+
+===== Distribution1.txt =====
+### Distribution1  20261027-2145
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.14
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+# Bond para Access1 (swp1 + swp2)
+auto bond1
+iface bond1
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    bridge-vids 2 3
+
+# Bond para Access2 (swp3 + swp4)
+auto bond2
+iface bond2
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    bridge-vids 2 3
+
+# Interligação com Distribution2 (swp5 + swp6)
+auto bond-dist
+iface bond-dist
+    bond-slaves swp5 swp6
+    bond-mode 802.3ad
+    bridge-vids 2 3
+
+# Bridge Linux com Spanning Tree (Priority baixa = Root Bridge para VLANs)
+auto bridge
+iface bridge
+    bridge-vlan-aware yes
+    bridge-ports bond1 bond2 bond-dist
+    bridge-vids 2 3
+    bridge-stp on
+    bridge-priority 16384
+
+# SVI VLAN 2
+auto bridge.2
+iface bridge.2 inet static
+    address 10.8.2.1/24
+
+# SVI VLAN 3
+auto bridge.3
+iface bridge.3 inet static
+    address 10.8.3.1/24
+
+
+# Bond L3 para SpineRouter1 (swp7 + swp8)
+auto bond-spine1
+iface bond-spine1 inet static
+    bond-slaves swp7 swp8
+    bond-mode 802.3ad
+    address 10.8.100.1/30
+
+# Bond L3 para SpineRouter2 (swp9 + swp10)
+auto bond-spine2
+iface bond-spine2 inet static
+    bond-slaves swp9 swp10
+    bond-mode 802.3ad
+    address 10.8.100.5/30
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname Distribution1
+log syslog informational
+service integrated-vtysh-config
+!
+interface bridge.2
+ ip ospf passive
+exit
+!
+interface bridge.3
+ ip ospf passive
+exit
+!
+router ospf
+ ospf router-id 10.8.255.11
+ network 10.8.2.0/24 area 1
+ network 10.8.3.0/24 area 1
+ network 10.8.100.0/30 area 0
+ network 10.8.100.4/30 area 0
+ area 1 range 10.8.2.0/23
+exit
+!
+end
+
+===== Distribution2.txt =====
+### Distribution2  20261027-2145
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.7
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+# Bond para Access2 (swp1 + swp2)
+auto bond1
+iface bond1
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    bridge-vids 2 3
+
+# Bond para Access1 (swp3 + swp4)
+auto bond2
+iface bond2
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    bridge-vids 2 3
+
+# Interligação com Distribution1 (swp5 + swp6)
+auto bond-dist
+iface bond-dist
+    bond-slaves swp5 swp6
+    bond-mode 802.3ad
+    bridge-vids 2 3
+
+# Bridge Linux (Priority 32768)
+auto bridge
+iface bridge
+    bridge-vlan-aware yes
+    bridge-ports bond1 bond2 bond-dist
+    bridge-vids 2 3
+    bridge-stp on
+    bridge-priority 32768
+
+# SVI VLAN 2
+auto bridge.2
+iface bridge.2 inet static
+    address 10.8.2.2/24
+
+# SVI VLAN 3
+auto bridge.3
+iface bridge.3 inet static
+    address 10.8.3.2/24
+
+
+# Bond L3 para SpineRouter2 (swp7 + swp8)
+auto bond-spine2
+iface bond-spine2 inet static
+    bond-slaves swp7 swp8
+    bond-mode 802.3ad
+    address 10.8.100.9/30
+
+# Bond L3 para SpineRouter1 (swp9 + swp10)
+auto bond-spine1
+iface bond-spine1 inet static
+    bond-slaves swp9 swp10
+    bond-mode 802.3ad
+    address 10.8.100.13/30
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname Distribution2
+log syslog informational
+service integrated-vtysh-config
+!
+interface bridge.2
+ ip ospf passive
+exit
+!
+interface bridge.3
+ ip ospf passive
+exit
+!
+router ospf
+ ospf router-id 10.8.255.12
+ network 10.8.2.0/24 area 1
+ network 10.8.3.0/24 area 1
+ network 10.8.100.8/30 area 0
+ network 10.8.100.12/30 area 0
+ area 1 range 10.8.2.0/23
+exit
+!
+end
+
+===== SpineRouter1.txt =====
+### SpineRouter1  20261027-2145
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+    address 10.8.255.1/32
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.5
+    netmask 255.255.255.0
+
+# Bond to Distribution1 (swp7 + swp8)
+auto bond-dist1
+iface bond-dist1 inet static
+    bond-slaves swp7 swp8
+    bond-mode 802.3ad
+    address 10.8.100.2/30
+
+# Bond to Distribution2 (swp9 + swp10)
+auto bond-dist2
+iface bond-dist2 inet static
+    bond-slaves swp9 swp10
+    bond-mode 802.3ad
+    address 10.8.100.14/30
+
+# Inter-link to SpineRouter2 (swp1 + swp2)
+auto bond-spine2
+iface bond-spine2 inet static
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    address 10.8.100.17/30
+
+# Bond to BorderRouter (swp3 + swp4)
+auto bond-border
+iface bond-border inet static
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    address 10.8.101.1/30
+
+# Bond to DatacenterRack (swp5 + swp6)
+auto bond-dc
+iface bond-dc inet static
+    bond-slaves swp5 swp6
+    bond-mode 802.3ad
+    address 10.8.102.2/30
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname SpineRouter1
+log syslog informational
+service integrated-vtysh-config
+!
+router ospf
+ ospf router-id 10.8.255.1
+ network 10.8.100.0/30 area 0
+ network 10.8.100.12/30 area 0
+ network 10.8.100.16/30 area 0
+ network 10.8.101.0/30 area 0
+ network 10.8.102.0/30 area 0
+ network 10.8.255.1/32 area 0
+exit
+!
+end
+
+===== SpineRouter2.txt =====
+### SpineRouter2  20261027-2145
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.3
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+# Bond para Distribution2 (swp7 + swp8)
+auto bond-dist2
+iface bond-dist2 inet static
+    bond-slaves swp7 swp8
+    bond-mode 802.3ad
+    address 10.8.100.10/30
+
+# Bond para Distribution1 (swp9 + swp10)
+auto bond-dist1
+iface bond-dist1 inet static
+    bond-slaves swp9 swp10
+    bond-mode 802.3ad
+    address 10.8.100.6/30
+
+# Inter-link para SpineRouter1 (swp1 + swp2)
+auto bond-spine1
+iface bond-spine1 inet static
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    address 10.8.100.18/30
+
+# Bond to BorderRouter (swp3 + swp4)
+auto bond-border
+iface bond-border inet static
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    address 10.8.101.5/30
+
+# Bond to DatacenterRack (swp11 + swp12)
+auto bond-dc
+iface bond-dc inet static
+    bond-slaves swp11 swp12
+    bond-mode 802.3ad
+    address 10.8.102.6/30
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname SpineRouter2
+log syslog informational
+service integrated-vtysh-config
+!
+router ospf
+ ospf router-id 10.8.100.6
+ network 10.8.100.4/30 area 0
+ network 10.8.100.8/30 area 0
+ network 10.8.100.16/30 area 0
+ network 10.8.101.4/30 area 0
+ network 10.8.102.4/30 area 0
+exit
+!
+end
+
+root@netauto:~# 
+

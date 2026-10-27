@@ -1,0 +1,629 @@
+root@netauto:~# cat scenario2-isis-l1l2-all.txt 
+=================== Access1.txt ===================
+### Access1  20261027-2239
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.13
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+auto bond-dist1
+iface bond-dist1 inet static
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    address 10.8.110.2/30
+
+auto bond-dist2
+iface bond-dist2 inet static
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    address 10.8.110.6/30
+
+auto swp5
+iface swp5
+    bridge-access 2
+
+auto swp6
+iface swp6
+    bridge-access 2
+
+auto bridge
+iface bridge
+    bridge-ports swp5 swp6
+    bridge-vlan-aware yes
+    bridge-vids 2
+    bridge-stp off
+
+auto bridge.2
+iface bridge.2 inet static
+    address 10.8.2.1/24
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname Access1
+log syslog informational
+service integrated-vtysh-config
+!
+interface bond-dist1
+ ip router isis CGR
+ isis circuit-type level-1
+ isis network point-to-point
+exit
+!
+interface bond-dist2
+ ip router isis CGR
+ isis circuit-type level-1
+ isis network point-to-point
+exit
+!
+interface bridge.2
+ ip router isis CGR
+ isis passive
+exit
+!
+router isis CGR
+ is-type level-1
+ net 49.0001.0100.0825.5013.00
+exit
+!
+end
+
+=================== Access2.txt ===================
+### Access2  20261027-2239
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.11
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+auto bond-dist2
+iface bond-dist2 inet static
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    address 10.8.110.10/30
+
+auto bond-dist1
+iface bond-dist1 inet static
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    address 10.8.110.14/30
+
+auto swp5
+iface swp5
+    bridge-access 3
+
+auto swp6
+iface swp6
+    bridge-access 3
+
+auto bridge
+iface bridge
+    bridge-ports swp5 swp6
+    bridge-vlan-aware yes
+    bridge-vids 3
+    bridge-stp off
+
+auto bridge.3
+iface bridge.3 inet static
+    address 10.8.3.1/24
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname Access2
+log syslog informational
+service integrated-vtysh-config
+!
+interface bond-dist1
+ ip router isis CGR
+ isis circuit-type level-1
+ isis network point-to-point
+exit
+!
+interface bond-dist2
+ ip router isis CGR
+ isis circuit-type level-1
+ isis network point-to-point
+exit
+!
+interface bridge.3
+ ip router isis CGR
+ isis passive
+exit
+!
+router isis CGR
+ is-type level-1
+ net 49.0001.0100.0825.5014.00
+exit
+!
+end
+
+=================== BorderRouter.txt ===================
+### BorderRouter  20261027-2239
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.9
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+auto bond-spine1
+iface bond-spine1 inet static
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    address 10.8.101.2/30
+
+auto bond-spine2
+iface bond-spine2 inet static
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    address 10.8.101.6/30
+
+auto swp5
+iface swp5 inet static
+    address 203.0.113.1/24
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname BorderRouter
+log syslog informational
+service integrated-vtysh-config
+!
+interface bond-spine1
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface bond-spine2
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+router isis CGR
+ is-type level-2-only
+ net 49.0002.0100.0825.5020.00
+ default-information originate ipv4 level-2 always
+exit
+!
+end
+
+=================== DatacenterRack.txt ===================
+### DatacenterRack  20261027-2239
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.12
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+auto bond-spine1
+iface bond-spine1 inet static
+    bond-slaves swp5 swp6
+    bond-mode 802.3ad
+    address 10.8.102.1/30
+
+auto bond-spine2
+iface bond-spine2 inet static
+    bond-slaves swp10 swp11
+    bond-mode 802.3ad
+    address 10.8.102.5/30
+
+auto swp1
+iface swp1 inet static
+    address 10.8.200.1/24
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname DatacenterRack
+log syslog informational
+service integrated-vtysh-config
+!
+interface bond-spine1
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface bond-spine2
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface swp1
+ ip router isis CGR
+ isis passive
+exit
+!
+router isis CGR
+ is-type level-2-only
+ net 49.0002.0100.0825.5030.00
+exit
+!
+end
+
+=================== Distribution1.txt ===================
+### Distribution1  20261027-2239
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.14
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+auto bond-acc1
+iface bond-acc1 inet static
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    address 10.8.110.1/30
+
+auto bond-acc2
+iface bond-acc2 inet static
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    address 10.8.110.13/30
+
+auto bond-spine1
+iface bond-spine1 inet static
+    bond-slaves swp7 swp8
+    bond-mode 802.3ad
+    address 10.8.100.1/30
+
+auto bond-spine2
+iface bond-spine2 inet static
+    bond-slaves swp9 swp10
+    bond-mode 802.3ad
+    address 10.8.100.5/30
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname Distribution1
+log syslog informational
+service integrated-vtysh-config
+!
+ip route 10.8.2.0/23 blackhole
+!
+interface bond-acc1
+ ip router isis CGR
+ isis circuit-type level-1
+ isis network point-to-point
+exit
+!
+interface bond-acc2
+ ip router isis CGR
+ isis circuit-type level-1
+ isis network point-to-point
+exit
+!
+interface bond-spine1
+ ip router isis CGR
+ isis circuit-type level-2-only
+ isis network point-to-point
+exit
+!
+interface bond-spine2
+ ip router isis CGR
+ isis circuit-type level-2-only
+ isis network point-to-point
+exit
+!
+router isis CGR
+ net 49.0001.0100.0825.5011.00
+ redistribute ipv4 static level-2
+exit
+!
+end
+
+=================== Distribution2.txt ===================
+### Distribution2  20261027-2239
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.7
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+auto bond-acc2
+iface bond-acc2 inet static
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    address 10.8.110.9/30
+
+auto bond-acc1
+iface bond-acc1 inet static
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    address 10.8.110.5/30
+
+auto bond-spine2
+iface bond-spine2 inet static
+    bond-slaves swp7 swp8
+    bond-mode 802.3ad
+    address 10.8.100.9/30
+
+auto bond-spine1
+iface bond-spine1 inet static
+    bond-slaves swp9 swp10
+    bond-mode 802.3ad
+    address 10.8.100.13/30
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname Distribution2
+log syslog informational
+service integrated-vtysh-config
+!
+ip route 10.8.2.0/23 blackhole
+!
+interface bond-acc1
+ ip router isis CGR
+ isis circuit-type level-1
+ isis network point-to-point
+exit
+!
+interface bond-acc2
+ ip router isis CGR
+ isis circuit-type level-1
+ isis network point-to-point
+exit
+!
+interface bond-spine1
+ ip router isis CGR
+ isis circuit-type level-2-only
+ isis network point-to-point
+exit
+!
+interface bond-spine2
+ ip router isis CGR
+ isis circuit-type level-2-only
+ isis network point-to-point
+exit
+!
+router isis CGR
+ net 49.0001.0100.0825.5012.00
+ redistribute ipv4 static level-2
+exit
+!
+end
+
+=================== SpineRouter1.txt ===================
+### SpineRouter1  20261027-2239
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+    address 10.8.255.1/32
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.5
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+auto bond-dist1
+iface bond-dist1 inet static
+    bond-slaves swp7 swp8
+    bond-mode 802.3ad
+    address 10.8.100.2/30
+
+auto bond-dist2
+iface bond-dist2 inet static
+    bond-slaves swp9 swp10
+    bond-mode 802.3ad
+    address 10.8.100.14/30
+
+auto bond-spine2
+iface bond-spine2 inet static
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    address 10.8.100.17/30
+
+auto bond-border
+iface bond-border inet static
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    address 10.8.101.1/30
+
+auto bond-dc
+iface bond-dc inet static
+    bond-slaves swp5 swp6
+    bond-mode 802.3ad
+    address 10.8.102.2/30
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname SpineRouter1
+log syslog informational
+service integrated-vtysh-config
+!
+interface bond-border
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface bond-dc
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface bond-dist1
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface bond-dist2
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface bond-spine2
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface lo
+ ip router isis CGR
+ isis passive
+exit
+!
+router isis CGR
+ is-type level-2-only
+ net 49.0002.0100.0825.5001.00
+exit
+!
+end
+
+=================== SpineRouter2.txt ===================
+### SpineRouter2  20261027-2239
+### /etc/network/interfaces
+# Management interface (written by cgr_lab.py)
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet static
+    address 192.168.200.3
+    netmask 255.255.255.0
+
+# ---- your data-plane configuration goes below (ifupdown2 syntax), then: ifreload -a
+
+auto bond-dist1
+iface bond-dist1 inet static
+    bond-slaves swp9 swp10
+    bond-mode 802.3ad
+    address 10.8.100.6/30
+
+auto bond-dist2
+iface bond-dist2 inet static
+    bond-slaves swp7 swp8
+    bond-mode 802.3ad
+    address 10.8.100.10/30
+
+auto bond-spine1
+iface bond-spine1 inet static
+    bond-slaves swp1 swp2
+    bond-mode 802.3ad
+    address 10.8.100.18/30
+
+auto bond-border
+iface bond-border inet static
+    bond-slaves swp3 swp4
+    bond-mode 802.3ad
+    address 10.8.101.5/30
+
+auto bond-dc
+iface bond-dc inet static
+    bond-slaves swp11 swp12
+    bond-mode 802.3ad
+    address 10.8.102.6/30
+
+### FRR running configuration
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname SpineRouter2
+log syslog informational
+service integrated-vtysh-config
+!
+interface bond-border
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface bond-dc
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface bond-dist1
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface bond-dist2
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface bond-spine1
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+router isis CGR
+ is-type level-2-only
+ net 49.0002.0100.0825.5002.00
+exit
+!
+end
+
+root@netauto:~# 
+
