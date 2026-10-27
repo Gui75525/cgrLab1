@@ -1,0 +1,136 @@
+root@R5:~# vtysh -c "show ip ospf database"
+vtysh -c "show ip route"
+
+       OSPF Router with ID (5.5.5.5)
+
+                Router Link States (Area 0.0.0.0)
+
+Link ID         ADV Router      Age  Seq#       CkSum  Link count
+1.1.1.1        1.1.1.1         1043 0x80000008 0xb4ba 2
+2.2.2.2        2.2.2.2         1325 0x80000006 0x5a74 2
+3.3.3.3        3.3.3.3         1326 0x80000004 0x7385 1
+5.5.5.5        5.5.5.5         1043 0x80000003 0xd4be 1
+
+                Net Link States (Area 0.0.0.0)
+
+Link ID         ADV Router      Age  Seq#       CkSum
+192.168.34.2   2.2.2.2         1330 0x80000001 0x8e2a
+192.168.45.3   3.3.3.3         1326 0x80000001 0x415f
+
+                Summary Link States (Area 0.0.0.0)
+
+Link ID         ADV Router      Age  Seq#       CkSum  Route
+1.1.1.1        1.1.1.1         1369 0x80000001 0x1f36 1.1.1.1/32
+5.5.5.5        1.1.1.1         1324 0x80000001 0xca70 5.5.5.5/32
+5.5.5.5        5.5.5.5         1046 0x80000001 0xed47 5.5.5.5/32
+172.16.0.1     3.3.3.3         1370 0x80000001 0x8112 172.16.0.1/32
+172.16.9.0     1.1.1.1         1369 0x80000001 0x67ab 172.16.9.0/25
+172.16.10.1    5.5.5.5         1046 0x80000001 0x9fcd 172.16.10.1/32
+172.16.11.1    1.1.1.1         1324 0x80000001 0xa8dd 172.16.11.1/32
+172.16.11.1    5.5.5.5         1046 0x80000001 0xcbb4 172.16.11.1/32
+172.16.12.1    1.1.1.1         1324 0x80000001 0x9de7 172.16.12.1/32
+172.16.12.1    5.5.5.5         1046 0x80000001 0x2550 172.16.12.1/32
+192.168.12.0   5.5.5.5         1046 0x80000001 0x6758 192.168.12.0/24
+192.168.13.0   5.5.5.5         1046 0x80000001 0xf7d0 192.168.13.0/24
+192.168.23.0   1.1.1.1         1369 0x80000001 0x02cc 192.168.23.0/24
+192.168.23.0   5.5.5.5         1046 0x80000001 0x8935 192.168.23.0/24
+
+                Router Link States (Area 0.0.0.32)
+
+Link ID         ADV Router      Age  Seq#       CkSum  Link count
+1.1.1.1        1.1.1.1         1044 0x80000006 0xf73d 1
+4.4.4.4        4.4.4.4         1330 0x80000002 0x0a3f 2
+5.5.5.5        5.5.5.5         1043 0x80000004 0x42d3 3
+
+                Net Link States (Area 0.0.0.32)
+
+Link ID         ADV Router      Age  Seq#       CkSum
+192.168.23.1   1.1.1.1         1330 0x80000002 0xe5c1
+
+                Summary Link States (Area 0.0.0.32)
+
+Link ID         ADV Router      Age  Seq#       CkSum  Route
+1.1.1.1        1.1.1.1         1369 0x80000001 0x1f36 1.1.1.1/32
+172.16.0.1     1.1.1.1         1320 0x80000001 0x8601 172.16.0.1/32
+172.16.9.0     1.1.1.1         1369 0x80000001 0x67ab 172.16.9.0/25
+172.16.9.1     1.1.1.1         1044 0x80000001 0x5a38 172.16.9.1/32
+172.16.9.33    1.1.1.1         1044 0x80000001 0x1959 172.16.9.33/32
+172.16.9.65    1.1.1.1         1044 0x80000001 0xd77a 172.16.9.65/32
+172.16.9.97    1.1.1.1         1044 0x80000001 0x969b 172.16.9.97/32
+172.16.10.1    5.5.5.5         1317 0x80000001 0x9fcd 172.16.10.1/32
+192.168.12.0   5.5.5.5         1322 0x80000001 0x6758 192.168.12.0/24
+192.168.13.0   5.5.5.5         1327 0x80000002 0xf5d1 192.168.13.0/24
+192.168.34.0   1.1.1.1         1370 0x80000001 0x883b 192.168.34.0/24
+192.168.45.0   1.1.1.1         1325 0x80000001 0x733b 192.168.45.0/24
+
+                ASBR-Summary Link States (Area 0.0.0.32)
+
+Link ID         ADV Router      Age  Seq#       CkSum
+3.3.3.3        1.1.1.1         1320 0x80000001 0x7dba
+
+                Router Link States (Area 0.0.0.43)
+
+Link ID         ADV Router      Age  Seq#       CkSum  Link count
+5.5.5.5        5.5.5.5         1327 0x80000005 0x4ada 1
+6.6.6.6        6.6.6.6         1322 0x80000006 0x8684 2
+7.7.7.7        7.7.7.7         1323 0x80000003 0xe757 2
+
+                Net Link States (Area 0.0.0.43)
+
+Link ID         ADV Router      Age  Seq#       CkSum
+192.168.12.7   7.7.7.7         1324 0x80000001 0x5e2f
+192.168.13.6   6.6.6.6         1328 0x80000001 0x2772
+
+                Summary Link States (Area 0.0.0.43)
+
+Link ID         ADV Router      Age  Seq#       CkSum  Route
+1.1.1.1        5.5.5.5         1038 0x80000001 0x0b30 1.1.1.1/32
+5.5.5.5        5.5.5.5         1364 0x80000001 0xed47 5.5.5.5/32
+172.16.0.1     5.5.5.5         1038 0x80000001 0x72fa 172.16.0.1/32
+172.16.9.0     5.5.5.5         1038 0x80000001 0x53a5 172.16.9.0/25
+172.16.11.1    5.5.5.5         1364 0x80000001 0xcbb4 172.16.11.1/32
+172.16.12.1    5.5.5.5         1324 0x80000001 0x2550 172.16.12.1/32
+192.168.23.0   5.5.5.5         1329 0x80000002 0x8736 192.168.23.0/24
+192.168.34.0   5.5.5.5         1038 0x80000001 0x7435 192.168.34.0/24
+192.168.45.0   5.5.5.5         1038 0x80000001 0x5f35 192.168.45.0/24
+
+                ASBR-Summary Link States (Area 0.0.0.43)
+
+Link ID         ADV Router      Age  Seq#       CkSum
+3.3.3.3        5.5.5.5         1038 0x80000001 0x69b4
+
+                AS External Link States
+
+Link ID         ADV Router      Age  Seq#       CkSum  Route
+0.0.0.0        3.3.3.3         1372 0x80000001 0x9233 E2 0.0.0.0/0 [0x0]
+
+
+Codes: K - kernel route, C - connected, L - local, S - static,
+       R - RIP, O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+       T - Table, v - VNC, V - VNC-Direct, A - Babel, F - PBR,
+       f - OpenFabric, t - Table-Direct,
+       > - selected route, * - FIB route, q - queued, r - rejected, b - backup
+       t - trapped, o - offload failure
+
+IPv4 unicast VRF default:
+O>* 0.0.0.0/0 [110/1] via 192.168.23.1, swp1, weight 1, 00:17:18
+O>* 1.1.1.1/32 [110/10] via 192.168.23.1, swp1, weight 1, 00:17:19
+L * 5.5.5.5/32 is directly connected, lo, weight 1, 00:22:50
+C>* 5.5.5.5/32 is directly connected, lo, weight 1, 00:22:50
+O>* 172.16.0.1/32 [110/30] via 192.168.23.1, swp1, weight 1, 00:17:19
+O>* 172.16.9.0/25 [110/10] via 192.168.23.1, swp1, weight 1, 00:17:19
+O>* 172.16.10.1/32 [110/20] via 192.168.13.6, swp2, weight 1, 00:21:58
+C>* 172.16.11.0/27 is directly connected, lo, weight 1, 00:22:50
+L>* 172.16.11.1/32 is directly connected, lo, weight 1, 00:22:50
+O>* 172.16.12.1/32 [110/10] via 192.168.23.4, swp1, weight 1, 00:22:05
+O>* 192.168.12.0/24 [110/20] via 192.168.13.6, swp2, weight 1, 00:22:03
+C>* 192.168.13.0/24 is directly connected, swp2, weight 1, 00:22:51
+L>* 192.168.13.5/32 is directly connected, swp2, weight 1, 00:22:51
+C>* 192.168.23.0/24 is directly connected, swp1, weight 1, 00:22:51
+L>* 192.168.23.5/32 is directly connected, swp1, weight 1, 00:22:51
+O>* 192.168.34.0/24 [110/20] via 192.168.23.1, swp1, weight 1, 00:17:19
+O>* 192.168.45.0/24 [110/30] via 192.168.23.1, swp1, weight 1, 00:17:19
+C>* 192.168.200.0/24 is directly connected, eth0, weight 1, 00:22:51
+L>* 192.168.200.35/32 is directly connected, eth0, weight 1, 00:22:51
+root@R5:~# 
+
