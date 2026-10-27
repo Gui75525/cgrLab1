@@ -1,0 +1,36 @@
+r2# show running-config
+Building configuration...
+
+Current configuration:
+!
+frr version 10.7.1
+frr defaults datacenter
+hostname r2
+log syslog informational
+service integrated-vtysh-config
+!
+interface lo
+ ip address 10.255.3.2/32
+ ip router isis CGR
+ isis passive
+exit
+!
+interface swp1
+ ip address 10.3.12.2/30
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+interface swp2
+ ip address 10.3.24.1/30
+ ip router isis CGR
+ isis network point-to-point
+exit
+!
+router isis CGR
+ net 49.0002.0102.5500.3002.00
+exit
+!
+end
+r2# 
+
